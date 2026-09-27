@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F7F8FC">
+<title>Gamage Speak — Student Products</title>
+
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-database-compat.js"></script>
+
+<style>
+  :root{
+    --bg:#F7F8FC;
+    --card-bg:#FFFFFF;
+    --text-primary:#14142B;
+    --text-secondary:#6B7280;
+    --accent-blue:#2E5CFF;
+    --black:#111827;
+    --border:#EEF0F5;
+    --danger:#DC2626;
+    --radius-card:18px;
+    --radius-hero:24px;
+    --ease-ios:cubic-bezier(0.32,0.72,0,1);
+    --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font);
+    background:var(--bg);
+    color:var(--text-primary);
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%;display:block;}
+  button{font-family:var(--font);border:none;background:none;cursor:pointer;color:inherit;}
+  input,textarea,select{font-family:var(--font);}
+  a{color:inherit;text-decoration:none;}
+
+  /* ---------- shell ---------- */
+  #shell{
+    max-width:480px;
+    margin:0 auto;
+    background:var(--bg);
+    min-height:100vh;
+    position:relative;
+    padding-bottom:calc(28px + env(safe-area-inset-bottom));
+  }
+  @media (min-width:540px){
+    body{background:#E4E6F1;}
+    #shell{
+      box-shadow:0 20px 60px rgba(20,20,43,0.18);
+      margin-top:24px;
+      margin-bottom:24px;
+      border-radius:32px;
+      overflow:hidden;
+      min-height:calc(100vh - 48px);
+    }
+  }
+
+  /* ---------- press feedback ---------- */
+  .press{transition:transform .15s var(--ease-ios), opacity .15s;}
+  .press:active{transform:scale(0.96);opacity:0.85;}
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;top:0;z-index:30;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:calc(14px + env(safe-area-inset-top)) 18px 14px;
+    background:rgba(247,248,252,0.82);
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid var(--border);
+  }
+  .icon-btn{
+    width:38px;height:38px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--card-bg);
+    box-shadow:0 1px 3px rgba(20,20,43,0.06);
+  }
+  .brand{font-size:19px;font-weight:700;letter-spacing:-0.3px;}
+  .header-spacer{width:38px;}
+
+  /* ---------- search + filter row ---------- */
+  .search-row{
+    display:flex;gap:10px;padding:14px 18px 6px;
+  }
+  .search-box{
+    flex:1;display:flex;align-items:center;gap:8px;
+    background:var(--card-bg);border-radius:14px;
+    padding:0 12px;height:44px;
+    box-shadow:0 1px 3px rgba(20,20,43,0.05);
+  }
+  .search-box svg{flex-shrink:0;color:var(--text-secondary);}
+  .search-box input{
+    border:none;outline:none;flex:1;font-size:15px;
+    background:transparent;color:var(--text-primary);height:100%;
+  }
+  .search-box input::placeholder{color:var(--text-secondary);}
+  .filter-btn{
+    width:44px;height:44px;border-radius:14px;flex-shrink:0;
+    background:var(--card-bg);position:relative;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 1px 3px rgba(20,20,43,0.05);
+  }
+  .filter-dot{
+    position:absolute;top:8px;right:8px;width:8px;height:8px;
+    border-radius:50%;background:var(--accent-blue);
+    display:none;
+  }
+  .filter-dot.show{display:block;}
+
+  .clear-chip-row{padding:0 18px;}
+  .clear-chip{
+    display:none;align-items:center;gap:6px;
+    margin-top:10px;padding:8px 14px;border-radius:20px;
+    background:#EEF0FF;color:var(--accent-blue);
+    font-size:13px;font-weight:600;width:fit-content;
+  }
+  .clear-chip.show{display:inline-flex;}
+
+  /* ---------- hero ---------- */
+  .hero{
+    margin:16px 18px 6px;padding:24px 20px;
+    border-radius:var(--radius-hero);
+    background:linear-gradient(135deg,#ECEFFE 0%,#E2E8FE 100%);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    overflow:hidden;
+  }
+  .hero-text h1{
+    margin:0;font-size:24px;line-height:1.25;font-weight:800;letter-spacing:-0.4px;
+  }
+  .hero-text h1 span{display:block;color:var(--accent-blue);}
+  .hero-text p{
+    margin:8px 0 16px;font-size:13px;color:var(--text-secondary);font-weight:500;
+  }
+  .hero-cta{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--black);color:#fff;
+    padding:11px 18px;border-radius:999px;
+    font-size:14px;font-weight:700;
+  }
+  .hero-img{width:130px;flex-shrink:0;}
+
+  /* ---------- section headers ---------- */
+  .section{padding:22px 18px 4px;}
+  .section-head{
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;
+  }
+  .section-head h2{margin:0;font-size:19px;font-weight:800;letter-spacing:-0.3px;}
+  .view-all-btn{
+    font-size:13px;font-weight:700;color:var(--accent-blue);
+    padding:6px 4px;
+  }
+
+  /* ---------- product grid ---------- */
+  .product-list{display:flex;flex-direction:column;gap:12px;}
+  .product-card{
+    display:flex;gap:12px;align-items:center;
+    background:var(--card-bg);border-radius:var(--radius-card);
+    padding:12px;box-shadow:0 1px 4px rgba(20,20,43,0.05);
+    opacity:0;animation:cardIn .45s var(--ease-ios) forwards;
+  }
+  @keyframes cardIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .product-thumb{
+    width:92px;height:92px;border-radius:14px;object-fit:cover;flex-shrink:0;background:var(--border);
+  }
+  .product-info{flex:1;min-width:0;}
+  .product-title{
+    font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .product-desc{
+    font-size:12.5px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;
+  }
+  .tag-pill{
+    display:inline-block;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:8px;margin-top:6px;
+  }
+  .tag-pdf{background:#FEE2E2;color:#DC2626;}
+  .tag-link{background:#EDE4FF;color:#7C3AED;}
+  .tag-video{background:#DCFCE7;color:#16A34A;}
+  .tag-default{background:#EEF0F5;color:#6B7280;}
+  .price-row{margin-top:7px;display:flex;align-items:baseline;gap:7px;}
+  .price-original{font-size:12px;color:var(--text-secondary);text-decoration:line-through;}
+  .price-discount{font-size:15px;font-weight:800;color:var(--accent-blue);}
+  .buy-now-mini{
+    margin-top:8px;background:var(--black);color:#fff;font-size:12px;font-weight:700;
+    padding:7px 14px;border-radius:999px;display:inline-block;pointer-events:none;
+  }
+  .empty-state{
+    text-align:center;padding:40px 20px;color:var(--text-secondary);font-size:14px;
+  }
+
+  /* ---------- browse by file type ---------- */
+  .filetype-grid{display:flex;gap:10px;}
+  .filetype-card{
+    flex:1;background:var(--card-bg);border-radius:16px;padding:16px 8px;
+    text-align:center;box-shadow:0 1px 4px rgba(20,20,43,0.05);
+    border:2px solid transparent;
+  }
+  .filetype-card.active{border-color:var(--accent-blue);background:#F2F5FF;}
+  .filetype-card svg{margin:0 auto 8px;display:block;}
+  .filetype-label{font-size:13px;font-weight:700;}
+  .filetype-count{font-size:11.5px;color:var(--text-secondary);margin-top:2px;}
+
+  /* ---------- backdrop shared ---------- */
+  .backdrop{
+    position:fixed;inset:0;background:rgba(17,24,39,0.42);z-index:40;
+    opacity:0;pointer-events:none;transition:opacity .3s ease;
+  }
+  .backdrop.open{opacity:1;pointer-events:auto;}
+
+  /* ---------- drawer ---------- */
+  .drawer{
+    position:fixed;top:0;bottom:0;left:0;width:78%;max-width:320px;
+    background:var(--card-bg);z-index:41;
+    transform:translateX(-100%);transition:transform .38s var(--ease-ios);
+    padding:calc(20px + env(safe-area-inset-top)) 20px 20px;
+    display:flex;flex-direction:column;
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+  .drawer-head h3{margin:0;font-size:20px;font-weight:800;}
+  .social-row{
+    display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);
+  }
+  .social-icon{
+    width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .social-label{font-size:15px;font-weight:600;}
+
+  /* ---------- bottom sheet (category filter) ---------- */
+  .sheet{
+    position:fixed;left:0;right:0;bottom:0;z-index:41;
+    background:var(--card-bg);border-radius:22px 22px 0 0;
+    transform:translateY(100%);transition:transform .38s var(--ease-ios);
+    padding:10px 20px calc(24px + env(safe-area-inset-bottom));
+  }
+  .sheet.open{transform:translateY(0);}
+  .sheet-handle{width:38px;height:5px;border-radius:3px;background:var(--border);margin:4px auto 16px;}
+  .sheet-title{font-size:17px;font-weight:800;margin-bottom:12px;}
+  .sheet-option{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 4px;font-size:15px;font-weight:600;border-bottom:1px solid var(--border);
+  }
+  .sheet-option:last-child{border-bottom:none;}
+  .sheet-check{width:20px;height:20px;color:var(--accent-blue);visibility:hidden;}
+  .sheet-option.selected .sheet-check{visibility:visible;}
+
+  /* ---------- product detail panel ---------- */
+  .detail-panel{
+    position:fixed;inset:0;background:var(--card-bg);z-index:50;
+    transform:translateX(100%);transition:transform .4s var(--ease-ios);
+    overflow-y:auto;
+  }
+  .detail-panel.open{transform:translateX(0);}
+  .detail-banner-wrap{position:relative;width:100%;aspect-ratio:16/10;background:var(--border);}
+  .detail-banner{width:100%;height:100%;object-fit:cover;}
+  .detail-back{
+    position:absolute;top:calc(16px + env(safe-area-inset-top));left:16px;
+    width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.9);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);backdrop-filter:blur(6px);
+  }
+  .detail-body{padding:20px 20px 110px;}
+  .detail-title{font-size:22px;font-weight:800;letter-spacing:-0.3px;margin-bottom:8px;}
+  .detail-price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;}
+  .detail-price-row .price-original{font-size:15px;}
+  .detail-price-row .price-discount{font-size:22px;}
+  .detail-desc{font-size:14.5px;line-height:1.6;color:var(--text-secondary);white-space:pre-wrap;}
+  .detail-sticky-bar{
+    position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;
+    background:rgba(255,255,255,0.85);backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-top:1px solid var(--border);
+    padding:12px 20px calc(12px + env(safe-area-inset-bottom));
+  }
+  .continue-btn{
+    width:100%;background:var(--black);color:#fff;font-size:16px;font-weight:700;
+    padding:15px;border-radius:16px;text-align:center;
+  }
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom));
+    transform:translateX(-50%) translateY(20px);
+    background:rgba(17,24,39,0.92);color:#fff;font-size:13.5px;font-weight:600;
+    padding:12px 20px;border-radius:14px;z-index:100;max-width:80%;text-align:center;
+    opacity:0;pointer-events:none;transition:opacity .3s var(--ease-ios), transform .3s var(--ease-ios);
+    backdrop-filter:blur(10px);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div id="shell">
+
+  <header>
+    <button class="icon-btn press" id="hamburgerBtn" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="brand">Gamage Speak</div>
+    <div class="header-spacer"></div>
+  </header>
+
+  <div class="search-row">
+    <div class="search-box">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" type="text" placeholder="Search student products...">
+    </div>
+    <button class="filter-btn press" id="filterBtn" aria-label="Filter">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="9" cy="6" r="2" fill="currentColor" stroke="none"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/></svg>
+      <span class="filter-dot" id="filterDot"></span>
+    </button>
+  </div>
+  <div class="clear-chip-row">
+    <button class="clear-chip press" id="clearChip">✕ Clear filters</button>
+  </div>
+
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Buy Premium<span>Student Products</span></h1>
+      <p>Instant Access, Secure &amp; Reliable</p>
+      <button class="hero-cta press" id="exploreBtn">Explore Now</button>
+    </div>
+    <!-- EDIT: replace with your hosted icon URL -->
+    <img class="hero-img" src="https://res.cloudinary.com/dihj6dmbb/image/upload/v1783828583/quickurl/file_00000000ca8c720ba8fd8f5c073966c9_1783828579580.png" onerror="this.style.display='none';" alt="">
+  </div>
+
+  <div class="section" id="productsSection">
+    <div class="section-head">
+      <h2>Featured Products</h2>
+      <button class="view-all-btn press" id="viewAllBtn">View All</button>
+    </div>
+    <div class="product-list" id="productList"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head"><h2>Browse by File Type</h2></div>
+    <div class="filetype-grid" id="filetypeGrid"></div>
+  </div>
+
+</div>
+
+<!-- drawer -->
+<div class="backdrop" id="drawerBackdrop"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3>Follow Us</h3>
+    <button class="icon-btn press" id="drawerClose">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg>
+    </button>
+  </div>
+  <div id="socialRows"></div>
+</div>
+
+<!-- category bottom sheet -->
+<div class="backdrop" id="sheetBackdrop"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Filter by category</div>
+  <div id="sheetOptions"></div>
+</div>
+
+<!-- product detail panel -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-banner-wrap">
+    <img class="detail-banner" id="detailBanner" src="" alt="">
+    <button class="detail-back press" id="detailBack">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+  </div>
+  <div class="detail-body">
+    <div class="detail-title" id="detailTitle"></div>
+    <div class="detail-price-row" id="detailPriceRow"></div>
+    <div class="detail-desc" id="detailDesc"></div>
+  </div>
+  <div class="detail-sticky-bar">
+    <button class="continue-btn press" id="continueBtn">Continue To Purchase</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // 🔧 EDIT: replace with your own Firebase project config before deploying
+  const firebaseConfig = {
+  apiKey: "AIzaSyAevO6XnLPASrPHMmMoyQqzAmdsqQ9ywqc",
+  authDomain: "ttttt-3461d.firebaseapp.com",
+  databaseURL: "https://ttttt-3461d-default-rtdb.firebaseio.com",
+  projectId: "ttttt-3461d",
+  storageBucket: "ttttt-3461d.firebasestorage.app",
+  messagingSenderId: "34938225491",
+  appId: "1:34938225491:web:fbbdf9e4b0dd610a9bd7a6",
+  measurementId: "G-JH23F1GWLF"
+};
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const PLACEHOLDER_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#EEF0F5"/><path d="M55 135 L82 98 L103 120 L128 82 L150 135 Z" fill="#C7CCDA"/><circle cx="72" cy="72" r="13" fill="#C7CCDA"/></svg>'
+  );
+
+  function esc(str){
+    return String(str==null?'':str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ---------- state ----------
+  let allProducts = [];
+  let socialLinksData = {};
+  let searchText = '';
+  let categoryFilter = 'all';   // all | premium | normal | budget
+  let fileTypeFilter = null;    // null | PDF | LINK | VIDEO
+  let showAllProducts = false;
+  let currentDetail = null;
+
+  // ---------- firebase listeners ----------
+  db.ref('products').on('value', snap => {
+    const data = snap.val() || {};
+    allProducts = Object.entries(data).map(([id, val]) => ({ id, ...val }))
+      .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    renderAll();
+  });
+
+  db.ref('socialLinks').on('value', snap => {
+    socialLinksData = snap.val() || {};
+    renderSocialRows();
+  });
+
+  // ---------- toast ----------
+  let toastTimer;
+  function showToast(msg){
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toast.classList.remove('show'), 2500);
+  }
+
+  // ---------- filtering helpers ----------
+  function filtersActive(){
+    return searchText.trim() !== '' || categoryFilter !== 'all' || fileTypeFilter !== null;
+  }
+
+  function getMatchingProducts(){
+    const q = searchText.trim().toLowerCase();
+    return allProducts.filter(p=>{
+      const cat = p.category || 'normal';
+      const ft = p.fileType || 'File';
+      if(categoryFilter !== 'all' && cat !== categoryFilter) return false;
+      if(fileTypeFilter && ft !== fileTypeFilter) return false;
+      if(q){
+        const title = (p.title||'').toLowerCase();
+        const desc = (p.description||'').toLowerCase();
+        if(!title.includes(q) && !desc.includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  function tagClass(ft){
+    if(ft === 'PDF') return 'tag-pdf';
+    if(ft === 'LINK') return 'tag-link';
+    if(ft === 'VIDEO') return 'tag-video';
+    return 'tag-default';
+  }
+
+  function priceRowHtml(p, big){
+    const orig = Number(p.originalPrice) || 0;
+    const disc = Number(p.discountPrice) || 0;
+    let html = '';
+    if(orig > disc){
+      html += `<span class="price-original">$${orig}</span>`;
+    }
+    html += `<span class="price-discount">$${disc}</span>`;
+    return html;
+  }
+
+  // ---------- render: product list ----------
+  function renderAll(){
+    renderProductList();
+    renderFileTypeGrid();
+    updateClearChip();
+    updateFilterDot();
+  }
+
+  function renderProductList(){
+    const listEl = document.getElementById('productList');
+    const matching = getMatchingProducts();
+    const shouldShowAll = showAllProducts || filtersActive();
+    const items = shouldShowAll ? matching : matching.slice(0,4);
+
+    document.getElementById('viewAllBtn').style.display = (!filtersActive() && matching.length > 4) ? 'block' : 'none';
+    document.getElementById('viewAllBtn').textContent = showAllProducts ? 'Show Less' : 'View All';
+
+    if(items.length === 0){
+      listEl.innerHTML = `<div class="empty-state">No student products found.</div>`;
+      return;
+    }
+
+    listEl.innerHTML = items.map((p,i)=>{
+      const ft = p.fileType || 'File';
+      const img = p.imageUrl || PLACEHOLDER_IMG;
+      return `
+        <div class="product-card" style="animation-delay:${Math.min(i,8)*40}ms" data-id="${esc(p.id)}">
+          <img class="product-thumb" src="${esc(img)}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}';" alt="">
+          <div class="product-info">
+            <div class="product-title">${esc(p.title||'Untitled')}</div>
+            <div class="product-desc">${esc(p.description||'')}</div>
+            <span class="tag-pill ${tagClass(ft)}">${esc(ft)}</span>
+            <div class="price-row">${priceRowHtml(p)}</div>
+            <div class="buy-now-mini">Buy Now</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    listEl.querySelectorAll('.product-card').forEach(card=>{
+      card.addEventListener('click', ()=>{
+        const id = card.getAttribute('data-id');
+        const product = allProducts.find(p=>p.id===id);
+        if(product) openDetail(product);
+      });
+    });
+  }
+
+  // ---------- render: file type browse ----------
+  const FT_ICONS = {
+    PDF: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg>',
+    LINK: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.4l2-2a5 5 0 0 0-7-7l-1.2 1.1"/><path d="M14 11a5 5 0 0 0-7.5-.4l-2 2a5 5 0 0 0 7 7l1.2-1.1"/></svg>',
+    VIDEO: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><polygon points="10,9 16,12 10,15" fill="#16A34A" stroke="none"/></svg>'
+  };
+
+  function renderFileTypeGrid(){
+    const grid = document.getElementById('filetypeGrid');
+    const types = ['PDF','LINK','VIDEO'];
+    grid.innerHTML = types.map(t=>{
+      const count = allProducts.filter(p=>(p.fileType||'File')===t).length;
+      const active = fileTypeFilter === t ? 'active' : '';
+      return `
+        <div class="filetype-card press ${active}" data-type="${t}">
+          ${FT_ICONS[t]}
+          <div class="filetype-label">${t}</div>
+          <div class="filetype-count">${count} items</div>
+        </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.filetype-card').forEach(card=>{
+      card.addEventListener('click', ()=>{
+        const t = card.getAttribute('data-type');
+        fileTypeFilter = (fileTypeFilter === t) ? null : t;
+        renderAll();
+        document.getElementById('productsSection').scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    });
+  }
+
+  function updateClearChip(){
+    document.getElementById('clearChip').classList.toggle('show', filtersActive());
+  }
+  function updateFilterDot(){
+    document.getElementById('filterDot').classList.toggle('show', categoryFilter !== 'all');
+  }
+
+  // ---------- search ----------
+  document.getElementById('searchInput').addEventListener('input', (e)=>{
+    searchText = e.target.value;
+    renderAll();
+  });
+
+  // ---------- clear filters ----------
+  document.getElementById('clearChip').addEventListener('click', ()=>{
+    searchText = '';
+    categoryFilter = 'all';
+    fileTypeFilter = null;
+    showAllProducts = false;
+    document.getElementById('searchInput').value = '';
+    renderAll();
+  });
+
+  // ---------- view all toggle ----------
+  document.getElementById('viewAllBtn').addEventListener('click', ()=>{
+    showAllProducts = !showAllProducts;
+    renderProductList();
+  });
+
+  // ---------- explore now ----------
+  document.getElementById('exploreBtn').addEventListener('click', ()=>{
+    document.getElementById('productsSection').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  // ---------- category bottom sheet ----------
+  const CATEGORY_OPTIONS = [
+    {key:'all', label:'All'},
+    {key:'premium', label:'Premium'},
+    {key:'normal', label:'Normal'},
+    {key:'budget', label:'Budget Friendly'}
+  ];
+  function renderSheetOptions(){
+    const el = document.getElementById('sheetOptions');
+    el.innerHTML = CATEGORY_OPTIONS.map(opt=>{
+      const selected = categoryFilter === opt.key ? 'selected' : '';
+      return `
+        <div class="sheet-option press ${selected}" data-key="${opt.key}">
+          <span>${opt.label}</span>
+          <svg class="sheet-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>`;
+    }).join('');
+    el.querySelectorAll('.sheet-option').forEach(opt=>{
+      opt.addEventListener('click', ()=>{
+        categoryFilter = opt.getAttribute('data-key');
+        closeSheet();
+        renderAll();
+      });
+    });
+  }
+  function openSheet(){
+    renderSheetOptions();
+    document.getElementById('sheet').classList.add('open');
+    document.getElementById('sheetBackdrop').classList.add('open');
+  }
+  function closeSheet(){
+    document.getElementById('sheet').classList.remove('open');
+    document.getElementById('sheetBackdrop').classList.remove('open');
+  }
+  document.getElementById('filterBtn').addEventListener('click', openSheet);
+  document.getElementById('sheetBackdrop').addEventListener('click', closeSheet);
+
+  // ---------- drawer ----------
+  function openDrawer(){
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('drawerBackdrop').classList.add('open');
+  }
+  function closeDrawer(){
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('drawerBackdrop').classList.remove('open');
+  }
+  document.getElementById('hamburgerBtn').addEventListener('click', openDrawer);
+  document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+  document.getElementById('drawerBackdrop').addEventListener('click', closeDrawer);
+
+  const SOCIAL_META = [
+    {key:'instagram', label:'Instagram', color:'#E1306C', icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="#fff" stroke="none"/></svg>'},
+    {key:'telegram', label:'Telegram', color:'#229ED9', icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M21 4L2.5 11.2c-1 .4-1 1.8.1 2.1l4.6 1.5 1.8 5.5c.3.9 1.4 1.1 2 .4l2.5-2.7 4.7 3.5c.8.6 2 .2 2.2-.8L22.9 5.2c.2-1-.7-1.7-1.9-1.2z" fill="#fff"/></svg>'},
+    {key:'whatsapp', label:'WhatsApp', color:'#25D366', icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-2-1.2-.7-.6-1.2-1.4-1.4-1.6-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4L9.4 8.5c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.4 3.9 3.4.5.2.9.4 1.3.5.5.2 1 .1 1.4.1.4-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3z"/></svg>'},
+    {key:'youtube', label:'YouTube', color:'#FF0000', icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" stroke="none"><rect x="2" y="5" width="20" height="14" rx="4" fill="none" stroke="#fff" stroke-width="0"/><path d="M2 8a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3z" fill="none" stroke="#fff" stroke-width="0" opacity="0"/><polygon points="10,8.5 16,12 10,15.5" fill="#fff"/></svg>'}
+  ];
+
+  function renderSocialRows(){
+    const el = document.getElementById('socialRows');
+    el.innerHTML = SOCIAL_META.map(s=>{
+      const url = socialLinksData[s.key] || '';
+      return `
+        <a class="social-row press" href="${url ? esc(url) : '#'}" target="_blank" rel="noopener" data-key="${s.key}" data-url="${esc(url)}">
+          <span class="social-icon" style="background:${s.color}">${s.icon}</span>
+          <span class="social-label">${s.label}</span>
+        </a>`;
+    }).join('');
+
+    el.querySelectorAll('.social-row').forEach(row=>{
+      row.addEventListener('click', (e)=>{
+        const url = row.getAttribute('data-url');
+        const label = SOCIAL_META.find(s=>s.key===row.getAttribute('data-key')).label;
+        if(!url){
+          e.preventDefault();
+          showToast(`${label} link not set yet`);
+        }
+      });
+    });
+  }
+
+  // ---------- product detail ----------
+  function openDetail(product){
+    currentDetail = product;
+    const img = product.imageUrl || PLACEHOLDER_IMG;
+    document.getElementById('detailBanner').src = img;
+    document.getElementById('detailBanner').onerror = function(){ this.onerror=null; this.src = PLACEHOLDER_IMG; };
+    document.getElementById('detailTitle').textContent = product.title || 'Untitled';
+    document.getElementById('detailPriceRow').innerHTML = priceRowHtml(product);
+    document.getElementById('detailDesc').textContent = product.description || '';
+    document.getElementById('detailPanel').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDetail(){
+    document.getElementById('detailPanel').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('detailBack').addEventListener('click', closeDetail);
+  document.getElementById('continueBtn').addEventListener('click', ()=>{
+    if(currentDetail && currentDetail.payLink){
+      window.location.href = currentDetail.payLink;
+    } else {
+      showToast('Purchase link not set for this product yet');
+    }
+  });
+
+</script>
+</body>
+</html>
